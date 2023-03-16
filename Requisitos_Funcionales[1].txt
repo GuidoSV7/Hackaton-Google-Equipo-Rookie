@@ -1,0 +1,44 @@
+Aplicaciones de lenguaje de señas, personas sordo mudas
+La barrera del lenguaje entre personas con esta discapacidad y aquellos que queremos poder entenderles (REDUCCION DE LAS DESIGUALDADES) 
+
+
+Idea de la aplicacion:
+
+Discapacitado:
+Que la persona discapacitada sus movimientos sean grabados por la camara y en tiempo real se lo traduzca al idioma en cuestión,
+
+Usuario comun:
+Hablar y la aplicacion guardará sus datos para convertirlos en lenguaje de señas para que la persona discapacitada entienda.
+
+
+
+*A discutir:*
+Veficar rango de edad de la app
+
+
+FUNCIONALIDADES
+
+Camara
+Socket - Tiempo real
+Microfono
+IA - BOT 
+
+
+Enseñar lenguaje de señas (Lo más universal posible) 
+
+Login
+Validaciones
+Auth - Token
+
+Registro
+Validaciones
+Auth - Token
+
+
+
+Cosas a ver:
+Investigar como viven las personas que sufieron un accidente y quedaron sordas
+
+
+
+
