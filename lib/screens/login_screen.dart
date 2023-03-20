@@ -7,6 +7,8 @@ import 'package:productosapp/widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
 
+  const LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,6 +50,8 @@ class LoginScreen extends StatelessWidget {
 
 
 class _LoginForm extends StatelessWidget {
+  
+  const _LoginForm({super.key});
 
   @override
   Widget build(BuildContext context) {
