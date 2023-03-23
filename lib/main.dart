@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:productosapp/auth/FirebaseProvider.dart';
+import 'package:productosapp/providers/providers.dart';
 
 import 'package:productosapp/screens/screens.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
         routes: {
           'login': (_) => const LoginScreen(),
           'home': (_) => const HomeScreen(),
+          'register': (_) => const RegisterScreen(),
         },
       ),
     );

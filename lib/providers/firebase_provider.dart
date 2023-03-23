@@ -1,12 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 class FirebaseProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  var _errorpassword = null;
-  User? _user;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  bool _isChange = false;
+  bool _isLoginError = false;
+
+  User? _user;
 
   FirebaseProvider() {
     _auth.authStateChanges().listen(_onAuthStateChanged);
@@ -20,9 +22,9 @@ class FirebaseProvider extends ChangeNotifier {
   Future<void> login({required String email, required String password}) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+      isLoginError = false;
     } catch (e) {
-      print("error de firebase  ${e.toString()}");
-      _errorpassword = e.toString();
+      isLoginError = true;
       rethrow;
     }
   }
@@ -31,24 +33,34 @@ class FirebaseProvider extends ChangeNotifier {
     try {
       await _auth.createUserWithEmailAndPassword(email: email, password: password);
     } catch (e) {
-      print("error de firebase  ${e.toString()}");
       rethrow;
     }
   }
 
-
+  Future<void> addUserDatabase({required String username,required String email, required String password,required String confirmpassword}) async {
+    try {
+      await _db.collection('user').add({
+        'username':username,
+        'email':email,
+        'password':password,
+        'confirmpassword':confirmpassword
+      }); 
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
   Future<void> signOut() async {
     await _auth.signOut();
   }
 
   User? get user => _user;
 
-  String? get errorPassword => _errorpassword;
+  bool get isLoginError => _isLoginError;
 
-  bool get isChange => _isChange;
-
-  set isChange( bool value ) {
-    _isChange = value;
+  set isLoginError( bool value ) {
+    _isLoginError = value;
+    notifyListeners();
   }
 
 }
