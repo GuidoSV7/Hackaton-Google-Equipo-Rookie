@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:productosapp/providers/providers.dart';
 import 'package:provider/provider.dart';
@@ -75,8 +76,6 @@ class LoginScreen extends StatelessWidget {
 
 
 class _LoginForm extends StatelessWidget {
-  
-  const _LoginForm({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -124,11 +123,9 @@ class _LoginForm extends StatelessWidget {
               ),
               onChanged: ( value ) => loginForm.password = value,
               validator: ( value ) {
-                if(value != null && value.length >= 6){
-                    //aqui deberiamos manejar el manejo del estado si hay un error en firebase
-                }else{
-                  return 'La contraseña debe tener al menos 6 caracteres';
-                }
+                return (value != null && value.length >= 6)
+                ?null
+                :'La contraseña debe tener al menos 6 caracteres';
               },
             ),
 
@@ -139,6 +136,7 @@ class _LoginForm extends StatelessWidget {
               disabledColor: Colors.grey,
               elevation: 0,
               color: Colors.deepPurple,
+              // ignore: sort_child_properties_last
               child: Container(
                 padding: EdgeInsets.symmetric( horizontal: 80, vertical: 15),
                 child:Text(
@@ -155,24 +153,90 @@ class _LoginForm extends StatelessWidget {
                 
                 if( !loginForm.isValidForm() ) return;
 
-                firebaseAuth.login(email: loginForm.email, password:loginForm.password);
-                
-                if(firebaseAuth.isLoginError){
-                  print('hubo un error en el login ${firebaseAuth.isLoginError}');
-                }else{
-                  print('todo esta oc ${firebaseAuth.isLoginError}');
+                try {
+                  final bool success = await firebaseAuth.login(email: loginForm.email, password:loginForm.password);
+                  if (success) {
+                    loginForm.isLoading = true;
+                    Navigator.pushReplacementNamed(context, 'home');
+                    loginForm.isLoading = false;
+                  }
+                } on FirebaseAuthException catch (e) {
+                  loginForm.isLoading = true;
+                  switch (e.code) {
+                    case 'user-not-found':
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Mensaje"),
+                            content: Text("El usuario no existe"),
+                            actions: <Widget>[
+                              TextButton(
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                                  ),
+                                  child: Text("Aceptar",
+                                          style: TextStyle( color: Colors.white ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                            ],
+                          );
+                        },
+                      );
+                      break;
+                    case 'wrong-password':
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Mensaje"),
+                            content: Text("Contraseña incorrecta"),
+                            actions: <Widget>[
+                              TextButton(
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                                  ),
+                                  child: Text("Aceptar",
+                                          style: TextStyle( color: Colors.white ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                            ],
+                          );
+                        }
+                      );
+                      break;
+                    default:
+                       showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Mensaje"),
+                            content: Text("Correo o contraseña incorrectos"),
+                            actions: <Widget>[
+                              TextButton(
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                                  ),
+                                  child: Text("Aceptar",
+                                          style: TextStyle( color: Colors.white ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                            ],
+                          );
+                        },
+                      );
+                  }
                 }
-                
-                
-                // loginForm.isLoading = true;
-                //  ScaffoldMessenger.of(context).showSnackBar(
-                //     const SnackBar(
-                //       content: Text('Correo o contraseña incorrectos'),
-                //     ),
-                //   );
-                // loginForm.isLoading = false;
-                //Navigator.pushReplacementNamed(context, 'home');
-                 
+                loginForm.isLoading = false;
             })
           ],
         ),

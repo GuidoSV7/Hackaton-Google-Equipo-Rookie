@@ -6,32 +6,39 @@ class FirebaseProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  bool _isLoginError = false;
-
   User? _user;
-
+  
   FirebaseProvider() {
     _auth.authStateChanges().listen(_onAuthStateChanged);
+    //_db.collection('users').snapshots().listen(_onUsersChanged);
   }
-
+  
   void _onAuthStateChanged(User? user) {
     _user = user;
     notifyListeners();
   }
 
-  Future<void> login({required String email, required String password}) async {
+  // void _onUsersChanged(QuerySnapshot<Map<String, dynamic>> snapshot) {
+  //   // Maneje los cambios en la colección de "user" aquí.
+  //   // Por ejemplo, podría actualizar una lista de usuarios almacenados en su clase.
+  //   notifyListeners();
+  // }
+
+  Future<bool> login({required String email, required String password}) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-      isLoginError = false;
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      _user = userCredential.user;
+      notifyListeners();
+      return true;
     } catch (e) {
-      isLoginError = true;
       rethrow;
     }
   }
 
-  Future<void> register({required String email, required String password}) async {
+  Future<bool> register({required String email, required String password}) async {
     try {
       await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      return true;
     } catch (e) {
       rethrow;
     }
@@ -55,12 +62,5 @@ class FirebaseProvider extends ChangeNotifier {
   }
 
   User? get user => _user;
-
-  bool get isLoginError => _isLoginError;
-
-  set isLoginError( bool value ) {
-    _isLoginError = value;
-    notifyListeners();
-  }
 
 }

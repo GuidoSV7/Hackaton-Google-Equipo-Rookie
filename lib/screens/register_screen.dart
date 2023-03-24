@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:productosapp/providers/providers.dart';
 import 'package:provider/provider.dart';
@@ -95,7 +96,7 @@ class _RegisterForm extends StatelessWidget {
                 labelText: 'Nombre de usuario',
                 prefixIcon: Icons.perm_identity_rounded
               ),
-              onChanged: ( value ) => loginForm.email = value,
+              onChanged: ( value ) => loginForm.username = value,
               validator: ( value ) {
                   String pattern = r'^[a-zA-Z0-9]+$';
                   RegExp regExp  = new RegExp(pattern);
@@ -187,13 +188,40 @@ class _RegisterForm extends StatelessWidget {
                 
                 if( !loginForm.isValidForm() ) return;
 
-                firebaseAuth.register(email: loginForm.email, password:loginForm.password);
-                loginForm.isLoading = true;
-                firebaseAuth.addUserDatabase(username: loginForm.username, email: loginForm.email, password: loginForm.password, confirmpassword: loginForm.confirmpassword);
-                await Future.delayed(Duration(seconds: 2 ));
-                Navigator.pushReplacementNamed(context, 'login');
-                loginForm.isLoading = false;
-
+                try {
+                  final bool succes = await firebaseAuth.register(email: loginForm.email, password:loginForm.password);
+                  if(succes){
+                    loginForm.isLoading = true;
+                    firebaseAuth.addUserDatabase(username: loginForm.username, email: loginForm.email, password: loginForm.password, confirmpassword: loginForm.confirmpassword);
+                    await Future.delayed(Duration(seconds: 2 ));
+                    Navigator.pushReplacementNamed(context, 'login');
+                    loginForm.isLoading = false;
+                  }
+                } on FirebaseAuthException catch (e) {
+                   showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Mensaje"),
+                            content: Text("Ha ocurrido un error intente nuevamente"),
+                            actions: <Widget>[
+                              TextButton(
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                                  ),
+                                  child: Text("Aceptar",
+                                          style: TextStyle( color: Colors.white ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                            ],
+                          );
+                        },
+                      );
+                }
+               
             })
           ],
         ),
