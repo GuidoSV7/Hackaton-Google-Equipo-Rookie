@@ -212,28 +212,7 @@ class _LoginForm extends StatelessWidget {
                       );
                       break;
                     default:
-                       showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text("Mensaje"),
-                            content: Text("Correo o contraseña incorrectos"),
-                            actions: <Widget>[
-                              TextButton(
-                                  style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                                  ),
-                                  child: Text("Aceptar",
-                                          style: TextStyle( color: Colors.white ),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                            ],
-                          );
-                        },
-                      );
+                      break;
                   }
                 }
                 loginForm.isLoading = false;
