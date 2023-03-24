@@ -192,10 +192,10 @@ class _RegisterForm extends StatelessWidget {
                   final bool succes = await firebaseAuth.register(email: loginForm.email, password:loginForm.password);
                   if(succes){
                     loginForm.isLoading = true;
-                    firebaseAuth.addUserDatabase(username: loginForm.username, email: loginForm.email, password: loginForm.password, confirmpassword: loginForm.confirmpassword);
+                    await firebaseAuth.addUserDatabase(username: loginForm.username, email: loginForm.email, password: loginForm.password, confirmpassword: loginForm.confirmpassword);
                     await Future.delayed(Duration(seconds: 2 ));
-                    Navigator.pushReplacementNamed(context, 'login');
                     loginForm.isLoading = false;
+                    Navigator.pushReplacementNamed(context, 'login');
                   }
                 } on FirebaseAuthException catch (e) {
                    showDialog(

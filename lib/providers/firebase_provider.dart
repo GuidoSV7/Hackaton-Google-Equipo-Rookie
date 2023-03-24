@@ -7,6 +7,7 @@ class FirebaseProvider extends ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   User? _user;
+  String? uid; 
   
   FirebaseProvider() {
     _auth.authStateChanges().listen(_onAuthStateChanged);
@@ -15,6 +16,7 @@ class FirebaseProvider extends ChangeNotifier {
   
   void _onAuthStateChanged(User? user) {
     _user = user;
+    uid = _user!.uid;
     notifyListeners();
   }
 
@@ -50,7 +52,8 @@ class FirebaseProvider extends ChangeNotifier {
         'username':username,
         'email':email,
         'password':password,
-        'confirmpassword':confirmpassword
+        'confirmpassword':confirmpassword,
+        'uid': uid
       }); 
     } catch (e) {
       rethrow;
