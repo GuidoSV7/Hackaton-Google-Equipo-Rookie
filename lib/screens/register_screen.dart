@@ -6,35 +6,33 @@ import 'package:provider/provider.dart';
 import 'package:productosapp/ui/input_decorations.dart';
 import 'package:productosapp/widgets/widgets.dart';
 
-class LoginScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
 
-  const LoginScreen({super.key});
+  const RegisterScreen({super.key});
  
   @override  
   Widget build(BuildContext context) {
-    
+
     return Scaffold(
       body: AuthBackground(
         child: SingleChildScrollView(
           child: Column(
             children: [
 
-              SizedBox( height: 250 ),
+              SizedBox( height: 200 ),
 
               CardContainer(
                 child: Column(
                   children: [
 
                     SizedBox( height: 10 ),
-                    Text('Login', style: Theme.of(context).textTheme.headline4 ),
+                    Text('Register', style: Theme.of(context).textTheme.headline4 ),
                     SizedBox( height: 30 ),
                     
                     ChangeNotifierProvider(
                       create: ( _ ) => LoginFormProvider(),
-                      child: _LoginForm()
+                      child: _RegisterForm()
                     )
-                    
-
                   ],
                 )
               ),
@@ -42,28 +40,25 @@ class LoginScreen extends StatelessWidget {
               SizedBox( height: 50 ),
 
               GestureDetector(
-                child: Text( 'Olvidaste tu contraseña?',
+                child: Text( 'Ya tienes una cuenta?',
                 style: TextStyle( 
                         fontSize: 18,
                         fontWeight: FontWeight.bold 
                   ),
                 ),
-                onTap: () {
-                  //Navigator.pushReplacementNamed(context, 'restar-password');
-                },
               ),
 
               SizedBox( height: 20 ),
 
               GestureDetector(
-                child: Text( 'Crear una nueva cuenta',
+                child: Text('Inicia Sesion',
                 style: TextStyle( 
                         fontSize: 18,
                         fontWeight: FontWeight.bold 
                   ),
                 ),
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, 'register');
+                  Navigator.pushReplacementNamed(context, 'login');
                 },
               ),
             ],
@@ -75,13 +70,15 @@ class LoginScreen extends StatelessWidget {
 }
 
 
-class _LoginForm extends StatelessWidget {
+class _RegisterForm extends StatelessWidget {
+  
+  const _RegisterForm({super.key});
 
   @override
   Widget build(BuildContext context) {
 
     final loginForm = Provider.of<LoginFormProvider>(context);
-    final firebaseAuth = Provider.of<FirebaseProvider>(context);
+    final firebaseAuth = Provider.of<FirebaseProvider>(context); 
 
     return Container(
       child: Form(
@@ -91,6 +88,27 @@ class _LoginForm extends StatelessWidget {
         child: Column(
           children: [
             
+             TextFormField(
+              autocorrect: false,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecorations.authInputDecoration(
+                hintText: 'ejemplo123',
+                labelText: 'Nombre de usuario',
+                prefixIcon: Icons.perm_identity_rounded
+              ),
+              onChanged: ( value ) => loginForm.username = value,
+              validator: ( value ) {
+                  String pattern = r'^[a-zA-Z0-9]+$';
+                  RegExp regExp  = new RegExp(pattern);
+                  
+                  return regExp.hasMatch(value ?? '')
+                    ? null
+                    : 'El nombre de usuario solo puede contener letras y números';
+              },
+            ),
+
+            SizedBox( height: 30 ),
+
             TextFormField(
               autocorrect: false,
               keyboardType: TextInputType.emailAddress,
@@ -112,7 +130,7 @@ class _LoginForm extends StatelessWidget {
 
             SizedBox( height: 30 ),
 
-            TextFormField(
+           TextFormField(
               autocorrect: false,
               obscureText: true,
               keyboardType: TextInputType.emailAddress,
@@ -123,9 +141,27 @@ class _LoginForm extends StatelessWidget {
               ),
               onChanged: ( value ) => loginForm.password = value,
               validator: ( value ) {
-                return (value != null && value.length >= 6)
-                ?null
-                :'La contraseña debe tener al menos 6 caracteres';
+                  return ((value != null && value.length >= 6) ?  null : 'La contraseña debe tener al menos 6 caracteres');
+              },
+            ),
+
+            SizedBox( height: 30 ),
+
+            TextFormField(
+              autocorrect: false,
+              obscureText: true,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecorations.authInputDecoration(
+                hintText: '*****',
+                labelText: 'Confirmar contraseña',
+                prefixIcon: Icons.lock_outline
+              ),
+              onChanged: ( value ) => loginForm.confirmpassword = value,
+              validator: ( value ) {
+                  return ( (value==loginForm.password)
+                    ? null
+                    :'Las contraseñas no coinciden'
+                  );
               },
             ),
 
@@ -136,13 +172,12 @@ class _LoginForm extends StatelessWidget {
               disabledColor: Colors.grey,
               elevation: 0,
               color: Colors.deepPurple,
-              // ignore: sort_child_properties_last
               child: Container(
                 padding: EdgeInsets.symmetric( horizontal: 80, vertical: 15),
                 child:Text(
                     loginForm.isLoading 
                       ? 'Espere'
-                      : 'Ingresar' 
+                      : 'Registrar' 
                       ,
                   style: TextStyle( color: Colors.white ),
                 )
@@ -154,22 +189,21 @@ class _LoginForm extends StatelessWidget {
                 if( !loginForm.isValidForm() ) return;
 
                 try {
-                  final bool success = await firebaseAuth.login(email: loginForm.email, password:loginForm.password);
-                  if (success) {
+                  final bool succes = await firebaseAuth.register(email: loginForm.email, password:loginForm.password);
+                  if(succes){
                     loginForm.isLoading = true;
-                    Navigator.pushReplacementNamed(context, 'home');
+                    await firebaseAuth.addUserDatabase(username: loginForm.username, email: loginForm.email, password: loginForm.password, confirmpassword: loginForm.confirmpassword);
+                    await Future.delayed(Duration(seconds: 2 ));
                     loginForm.isLoading = false;
+                    Navigator.pushReplacementNamed(context, 'login');
                   }
                 } on FirebaseAuthException catch (e) {
-                  loginForm.isLoading = true;
-                  switch (e.code) {
-                    case 'user-not-found':
-                      showDialog(
+                   showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: Text("Mensaje"),
-                            content: Text("El usuario no existe"),
+                            content: Text("Ha ocurrido un error intente nuevamente"),
                             actions: <Widget>[
                               TextButton(
                                   style: ButtonStyle(
@@ -186,36 +220,8 @@ class _LoginForm extends StatelessWidget {
                           );
                         },
                       );
-                      break;
-                    case 'wrong-password':
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text("Mensaje"),
-                            content: Text("Contraseña incorrecta"),
-                            actions: <Widget>[
-                              TextButton(
-                                  style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                                  ),
-                                  child: Text("Aceptar",
-                                          style: TextStyle( color: Colors.white ),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                            ],
-                          );
-                        }
-                      );
-                      break;
-                    default:
-                      break;
-                  }
                 }
-                loginForm.isLoading = false;
+               
             })
           ],
         ),

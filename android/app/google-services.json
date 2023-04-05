@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "521417080526",
+    "project_id": "rookie-app-bffb5",
+    "storage_bucket": "rookie-app-bffb5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521417080526:android:66cfd13d59eb86fce55a9f",
+        "android_client_info": {
+          "package_name": "com.example.productosapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "521417080526-n3ipod776j205ubdtbprimpe6svpq7v0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9uECWX9aJJhgPYQnrxyj5OoZD-go5nVg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "521417080526-n3ipod776j205ubdtbprimpe6svpq7v0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
